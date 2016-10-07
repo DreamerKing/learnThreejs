@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<script type="text/javascript" src="../libs/dat.gui/dat.gui.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript">
+	var renderer,
+		scene,
+		camera,
+		control;
+
+	function init () {
+		scene = new THREE.Scene();
+
+		var apsect = window.innerWidth / window.innerHeight;
+
+		camera = new THREE.PerspectiveCamera(45, apsect, 0.1, 1000);
+
+		renderer = new THREE.WebGLRenderer();
+		renderer.setClearColor(0x000000, 1.0);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+		var cubeGeomatry = new THREE.BoxGeometry(10, 8, 10);
+		var cubeMaterial = new THREE.MeshLambertMaterial();
+		cubeMaterial.transparent = true;
+		cubeMaterial.vertexColors = THREE.FaceColors;
+		cubeGeomatry.faces.forEach(function(e){
+			e.color = new THREE.Color(0xff00000);
+		});
+
+		var cube = new THREE.Mesh(cubeGeomatry, cubeMaterial);
+		cube.name = "cube";
+		scene.add(cube);
+
+		var light = new THREE.DirectionalLight();
+        light.position.set(20, 30, 20);
+        scene.add(light);
+
+        camera.position.x = 15;
+        camera.position.y = 16;
+        camera.position.z = 13;
+        camera.lookAt(scene.position);
+		
+		document.body.appendChild(renderer.domElement);
+
+		control = new function () {
+            this.changeColors = function () {
+            	console.log('changeColors');
+            	var mesh = scene.getObjectByName('cube');
+            	mesh.geometry.faces.forEach(function (face) {
+            		face.color = new THREE.Color(Math.random() * 0xffffff);
+            	});
+            };
+
+            this.setUpdateColorFlag = function() {
+            	console.log("setUpdateColorFlag");
+            	var mesh = scene.getObjectByName('cube');
+            	mesh.geometry.colorsNeedUpdate = true;
+            };
+
+            this.changeVertices = function () {
+            	console.log("changeVertices");
+            	var mesh = scene.getObjectByName('cube');
+            	mesh.geometry.vertices.forEach(function (vertices) {
+            		vertices.x += Math.random() * 2 -1;
+            		vertices.y += Math.random() * 2 -1;
+            		vertices.z += Math.random() * 2 -1;
+            	});
+            };
+
+            this.setUdateVerticesFlag = function () {
+            	console.log("setUdateVerticesFlag");
+            	var mesh = scene.getObjectByName('cube');
+            	mesh.geometry.verticesNeedUpdate = true;
+            }
+
+        };
+
+        addControls(control);
+        render();
+	}
+
+	function render(){
+		renderer.render(scene, camera);
+		requestAnimationFrame(render);
+	}
+
+	function addControls(controlsObject) {
+		var gui = new dat.GUI();
+		gui.add(controlsObject,'changeColors');
+		gui.add(controlsObject, 'setUpdateColorFlag');
+		gui.add(controlsObject, 'changeVertices');
+		gui.add(controlsObject, 'setUdateVerticesFlag');
+	}
+
+	window.onload = init;
+</script>
+
+</body>
+</html>

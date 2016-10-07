@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<script type="text/javascript" src="../libs/dat.gui/dat.gui.js"></script>
+	<!-- 颜色转换插件 -->
+	<script type="text/javascript" src="../libs/chroma.min.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript">
+	var renderer, //渲染器
+		scene, // 场景
+		camera, // 相机
+		control; // 控制器
+
+	var scale = chroma.scale(['blue', 'green', 'red']).domain([0, 50]);	// 比例尺
+
+	function init() {
+		scene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+		renderer = new THREE.WebGLRenderer();
+		renderer.setClearColor(0x000000, 1.0);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		// 添加光照
+		var light = new THREE.DirectionalLight();
+		light.position.set(1200, 1200, 1200);
+		scene.add(light);
+		// 设置相机位置，并将相机对准场景中央
+		camera.position.x = 1200;
+		camera.position.y = 500;
+		camera.position.z = 1200;
+		camera.lookAt(scene.position);
+		// 添加渲染节点到页面正文中
+		document.body.appendChild(renderer.domElement);
+		//创建控制变量
+		control = new function() {
+			this.rotationSeed = 0.005;
+			this.scale = 1;
+		};
+		// 添加控制器
+		addControls(control);
+		// 创建图形
+		createGeometryFromMap();
+		// 渲染
+		render();
+	}
+ 	// 创建图形 
+	function createGeometryFromMap() {
+		var depth = 512,
+			width = 512,
+			spacingX = 3,
+			spacingZ = 3,
+			heightOffset = 3;
+		// 创建canvas容器	
+		var canvas = document.createElement('canvas');
+			canvas.width = 512;
+			canvas.height = 512;
+		// 获取2d绘图环境	
+		var ctx = canvas.getContext('2d');
+		// 创建图片对象
+		var img = new Image();
+		img.src="../img/canyou.png";
+		// 图片加载事件
+		img.onload = function () {
+			// 将图形绘制到canvas中
+			ctx.drawImage(img, 0, 0);
+			// 获取canvas中的图形数据
+			/**
+			params x 
+			params y 
+			params width 
+			params height
+			
+			return rgba	
+			getImageData(x, y, width, height);
+			*/
+			var pixel = ctx.getImageData(0, 0, width, depth);
+			// putImageData() 将图形数据绘制到canvas
+
+			var geom = new THREE.Geometry;
+			var output = [];
+			// 将每个像素点的值转换到Vector3中
+			for(var x = 0; x < depth; x++) {
+				for(var z = 0; z < width; z++) {
+					var yValue = pixel.data[z * 4 + (depth * x * 4)] / heightOffset;
+					var vertex = new THREE.Vector3(x * spacingX, yValue, z * spacingZ);
+					geom.vertices.push(vertex);
+				}
+			}
+
+			for (var z = 0; z < depth - 1; z++) {
+				for(var x = 0; x < width -1; x++) {
+					var a = x + z * width;
+					var b = (x + 1) + (z * width);
+					var c = x + ((z + 1) * width);
+					var d = (x + 1) + ((z + 1) * width);
+
+					var face1 = new THREE.Face3(a, b, d);
+					var face2 = new THREE.Face3(d, c, a);
+
+					face1.color = new THREE.Color(scale(getHightPoint(geom, face1)).hex())
+					face2.color = new THREE.Color(scale(getHightPoint(geom, face2)).hex());
+					geom.faces.push(face1);
+					geom.faces.push(face2);
+				}
+			}
+
+			geom.computeVertexNormals(true);
+			geom.computeFaceNormals();
+			geom.computeBoundingBox();
+
+			var zMax = geom.boundingBox.max.z;
+			var xMax = geom.boundingBox.max.x;
+
+			var mesh = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({
+				vertexColors: THREE.FaceColors,
+				color: 0x666666,
+				shading: THREE.NoShading
+			}));
+			mesh.translateX(-xMax / 2);
+			mesh.translateZ(-zMax / 2);
+			mesh.name = "valley";
+			scene.add(mesh);
+
+		}	
+	}
+
+	function getHightPoint(gemometry, face) {
+		var v1 = gemometry.vertices[face.a].y;
+		var v2 = gemometry.vertices[face.b].y;
+		var v3 = gemometry.vertices[face.c].y;
+		return Math.max(v1, v2, v3);
+	}
+
+	function addControls(controlObject) {
+
+	}
+
+	function render() {
+		renderer.render(scene, camera);
+		requestAnimationFrame(render);
+	}
+
+	window.onload = init;
+
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<script type="text/javascript" src="../libs/stats.js"></script>
+	<script type="text/javascript" src="../libs/dat.gui/dat.gui.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript">
+	var renderer,
+		scene,
+		camera,
+		stats,
+		control,
+		objects = [];
+
+	function init () {
+		scene = new THREE.Scene();
+
+		var apsect = window.innerWidth / window.innerHeight;
+
+		camera = new THREE.PerspectiveCamera(45, apsect, 0.1, 1000);
+
+		renderer = new THREE.WebGLRenderer();
+		renderer.setClearColor(0x000000, 1.0);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+		camera.position.x = 50;
+        camera.position.y = 50;
+        camera.position.z = 50;
+        camera.lookAt(scene.position);
+        document.body.appendChild(renderer.domElement);
+
+		control = new function () {
+            this.merged = false;
+            this.rotationSpeed = 0.005;
+            this.numberToAdd = 2000;
+            this.clear = function () {
+            	if(scene.getObjectByName('mesh')) {
+            		scene.remove(scene.getObjectByName('mesh'));
+            	}
+            	objects.forEach(function (e) {
+            		scene.remove(e);
+            		objects = [];
+            		control.totalCubes = 0;
+            	});
+            };
+
+            this.addCubes = function () {
+            	control.clear();
+            	if(control.merged) {
+            		var mergedGeometry = new THREE.Geometry();
+            		if(scene.getObjectByName('merged')) {
+            			scene.remove(scene.getObjectByName('merged'));
+            		}
+            		for(var i = 0; i < control.numberToAdd; i++ ) {
+            			mergedCube(mergedGeometry);
+            		}
+            		var mesh = new THREE.Mesh(mergedGeometry, new THREE.MeshNormalMaterial({
+            			opacity: 0.5,
+            			transparent: true
+            		}));
+            		mesh.name = "merged";
+            		scene.add(mesh);
+            	} else {
+            		for (var i = 0; i < control.numberToAdd; i++) {
+            			addCube();
+            		}
+            	}
+            	control.totalCubes += control.numberToAdd;
+            };
+
+            this.merge = function () {
+            	var geom = new THREE.Geometry();
+            	objects.forEach(function (e) {
+            		geom.merge(e);
+            	});
+            };
+        };
+
+        addControls(control);
+        stats = createStats();
+        document.body.appendChild(stats.domElement);
+        render();
+	}
+
+	function mergeCube (mergeInto) {
+		var cubeGeomatry = new THREE.BoxGeometry(4 * Math.random(), 4 * Math.random(), 4 * Math.random());
+		var translation = new THREE.Matrix4().makeTranslation(100 * Math.random() - 50,
+			0, 100 * Math.random() - 50);
+		cubeGeomatry.applyMatrix(translation);
+		mergeInto.merge(cubeGeomatry);
+	} 
+
+	function addCube () {
+		var cubeGeomatry = new THREE.BoxGeometry(4 * Math.random(), 4 * Math.random(), 4 * Math.random());
+		var cubeMaterial = new THREE.MeshNormalMaterial({
+			opacity: 0.5,
+			transparent: true
+		});
+		cubeMaterial.transparent = true;
+		var cube = new THREE.Mesh(cubeGeomatry, cubeMaterial);
+		cube.position.set(100 * Math.random() - 50, 0, 100 * Math.random() - 50);
+		scene.add(cube);
+		objects.push(cube);
+	}
+
+	function render(){
+		renderer.render(scene, camera);
+		var x = camera.position.x;
+		var z = camera.position.z;
+		camera.position.x = x * Math.cos(control.rotationSpeed) + z * Math.sin(control.rotationSpeed);
+		camera.position.z = z * Math.cos(control.rotationSpeed) - x * Math.sin(control.rotationSpeed);
+		camera.lookAt(scene.position);
+
+		requestAnimationFrame(render);
+		stats.update();
+	}
+
+	function createStats () {
+		var stats = new Stats();
+		stats.setMode(0);
+		stats.domElement.style.position = 'absolute';
+		stats.domElement.style.left = '0px';
+		stats.domElement.style.top = '0px';
+		return stats;
+	}
+	function addControls(controlsObject) {
+		var gui = new dat.GUI();
+		gui.add(controlsObject,'merged');
+		gui.add(controlsObject, 'rotationSpeed', -0.1, 0.1);
+		gui.add(controlsObject, 'numberToAdd');
+		gui.add(controlsObject, 'addCubes');
+		gui.add(controlsObject, 'clear');
+	}
+
+	window.onload = init;
+</script>
+
+</body>
+</html>

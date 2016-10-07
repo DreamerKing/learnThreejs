@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<!-- <script type="text/javascript" src="../bower_components/three.js/libs/stats.js"></script> -->
+	<script type="text/javascript" src="../libs/q/q.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript">
+
+var renderer = new THREE.WebGLRenderer();
+var scene;
+var camera;
+window.onload = init;
+
+function init () {
+	
+	loadOthers('../data/test.json')
+		.then(function(result){
+			return result;
+		})
+		.then(function(result) {
+			console.log(result);
+			return result;
+		})
+		.then(function(data) {
+			console.log(JSON.parse(data).name);
+		})
+		.catch(function(error) {
+			console.log(error);
+		});
+
+	// loadModel('../data/test.json')
+	// 		.then(function(result) {
+	// 			return loadTexture(texture);
+	// 		})
+	// 		.then(function(result) {
+	// 			return loadModel(m);
+	// 		})
+	// 		.then(function(result) {
+	// 			return loadModelWithProgress(m);
+	// 		})
+	// 		// .then(function(result) {
+	// 		// 	return loadOthers(res);
+	// 		// })
+	// 		.then(function(){
+	// 			console.log("all done");
+	// 		})
+	// 		.catch(function(error) {
+	// 			console.log("Error occurred in sequence:" , error);
+	// 		})
+	// 		.progress(function(e) {
+	// 			console.log("Progree event received:", e);
+	// 		});
+}
+
+// function loadTexture(texture) {
+// 	var deferred = Q.defer();
+// 	var text = THREE.ImageUtils.loadTexture(texture, null, 
+// 		function(loaded) {
+// 			console.log("Load texture:", texture);
+// 			deferred.resolve(loaded);
+// 		},
+// 		function (error) {
+// 			deferred.reject(error);
+// 		});
+// 	return deferred.promise();
+// }
+
+// function loadModel(modal) {
+// 	var deferred = Q.defer();
+// 	var jsonLoader = new THREE.JSONLoader();
+// 	jsonLoader.load(modal, function(loaded) {
+// 		console.log("Loaded model:", model);
+// 		deferred.resolve(loaded);
+// 	}, null);
+// 	return deferred.promise();
+// }
+
+function loadOthers(res) {
+	var deferred = Q.defer();
+	var xhrLoader = new THREE.XHRLoader();
+	xhrLoader.load(res, function(loaded) {
+		console.log("Loaded other:", res);
+		deferred.resolve(loaded);
+	},
+	function(progress) {
+		deferred.notify(progress);
+	},
+	function(error) {
+		deferred.reject(error);
+	});
+
+	return deferred.promise;
+}
+
+// function loadModelWithProgress(model){
+// 	var deferred = Q.defer();
+// 	var jsonLoader = new THREE.JSONLoader();
+// 	jsonLoader.loadAjaxJSON(jsonLoader, model, 
+// 		function(model) {
+// 			console.log("Loaded model with progress: ", model);
+// 			deferred.resolve(model);
+// 		}, null,
+// 		function(progress) {
+// 			deferred.notify(progress);
+// 		});
+// 	return deferred.promise();
+// }	
+</script>
+
+</body>
+</html>

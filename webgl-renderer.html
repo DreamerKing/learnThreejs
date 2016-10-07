@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript">
+var renderer;
+var scene;
+var camera;
+window.onload = init;
+
+function init () {
+	var apsect = window.innerWidth / window.innerHeight;
+
+	scene = new THREE.Scene();
+	camera = new THREE.PerspectiveCamera(45, apsect, 0.1, 1000);
+	camera.position.x = 15;
+	camera.position.y = 16;
+	camera.position.z = 13;
+	camera.lookAt(scene.position);
+
+	var renderer = new THREE.WebGLRenderer();
+	renderer.setClearColor(0x000000, 1.0);
+	renderer.setSize(window.innerWidth, window.innerHeight);
+
+	var cubeGeometry = new THREE.BoxGeometry( 10 * Math.random(), 10 * Math.random(), 10 * Math.random() );
+	var cubeMaterial = new THREE.MeshNormalMaterial();
+	var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+
+	scene.add(cube);
+	document.body.appendChild(renderer.domElement);
+
+	renderer.render(scene, camera);
+}
+	
+</script>
+
+</body>
+</html>

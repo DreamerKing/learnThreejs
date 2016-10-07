@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<script type="text/javascript" src="../bower_components/three.js/libs/stats.js"></script>
+	<script type="text/javascript" src="../libs/dat.gui/build/dat.gui.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript">
+
+var renderer = new THREE.WebGLRenderer();
+var scene;
+var camera;
+window.onload = init;
+
+function init () {
+	//loadModelWithProgress('../data/test.json');
+	loadOthers('../data/test.json');
+}
+
+function onLoadCB(data) {
+	console.log(data);
+}
+function onProgressCB(progress) {
+	console.log("Progress", progress);
+}
+
+function onRrrorCB(error) {
+	console.log(error);
+}
+
+function loadModel(modelUrl) {
+	var jsonLoader = new THREE.JSONLoader();
+	jsonLoader.load(modelUrl, onLoadCB, null);
+	console.log(" jsonLoader call", jsonLoader);
+}
+
+function loadModelWithProgress (modal) {
+	var jsonLoader = new THREE.JSONLoader();
+	console.log(jsonLoader,"show");
+	jsonLoader.load(modal, onLoadCB, onProgressCB, onRrrorCB);
+}
+
+function loadOthers(res) {
+	var xhrLoader = new THREE.XHRLoader();
+	xhrLoader.load(res, onLoadCB, onProgressCB, onRrrorCB);
+}
+	
+</script>
+
+</body>
+</html>

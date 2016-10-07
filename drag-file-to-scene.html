@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<!-- <script type="text/javascript" src="../bower_components/three.js/libs/stats.js"></script> -->
+	<script type="text/javascript" src="../libs/q/q.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		#holder {
+			border: 5px dashed #ccc;
+			width: 300px;
+			height: 300px;
+			margin: 20px auto;
+		}
+		#holder.hover {
+			border: 10px dashed #333;
+		}
+	</style>
+</head>
+<body>
+<div id="holder"></div>
+<script type="text/javascript">
+
+var renderer = new THREE.WebGLRenderer();
+var scene = new THREE.Scene();
+var camera = new THREE.Camera();
+window.onload = init;
+
+function init () {
+		var cubeGeometry = new THREE.BoxGeometry( 100 * Math.random(), 100 * Math.random(), 100 * Math.random() );
+		var cubeMaterial = new THREE.MeshNormalMaterial();
+		var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+		renderer.setClearColor(0x000000, 1.0);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		scene.add(cube);
+		renderer.render(scene, camera);
+		document.body.appendChild(renderer.domElement);
+		
+		setupDragDrop();
+
+	// loadOthers('../data/test.json')
+	// 	.then(function(result){
+	// 		return result;
+	// 	})
+	// 	.then(function(result) {
+	// 		console.log(result);
+	// 		return result;
+	// 	})
+	// 	.then(function(data) {
+	// 		console.log(JSON.parse(data).name);
+	// 	})
+	// 	.catch(function(error) {
+	// 		console.log(error);
+	// 	});
+
+	
+}
+
+function setupDragDrop() {
+	var holder = document.getElementById('holder');
+
+	holder.ondragover = function () {
+		this.className = 'hover';
+		return false;
+	};
+	holder.ondragend = function () {
+		this.className = '';
+		return false;
+	};
+	holder.ondrop = function (e) {
+		this.className = '';
+		e.preventDefault();
+
+		var file = e.dataTransfer.files[0];
+		var reader = new FileReader();
+		 reader.onload = function (event) {
+		 	console.log(event.target)
+		 	holder.style.background = 'url('+ event.target.result + ') no-repeat center';
+		 	var image = document.createElement('img');
+		 	image.src = event.target.result;
+		 	var texture = new THREE.Texture(image);
+		 	texture.needsUpdate = true;
+		 	console.log(texture);
+		 	// console.log(scene, scene.getObjectByName('cube'));
+		 	// scene.children[0].material.map = texture;
+		 };
+		 reader.readAsDataURL(file);
+		 return false;
+	}
+}
+
+
+// function loadOthers(res) {
+// 	var deferred = Q.defer();
+// 	var xhrLoader = new THREE.XHRLoader();
+// 	xhrLoader.load(res, function(loaded) {
+// 		console.log("Loaded other:", res);
+// 		deferred.resolve(loaded);
+// 	},
+// 	function(progress) {
+// 		deferred.notify(progress);
+// 	},
+// 	function(error) {
+// 		deferred.reject(error);
+// 	});
+
+// 	return deferred.promise;
+// }
+
+
+</script>
+
+</body>
+</html>

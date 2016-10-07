@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<script type="text/javascript" src="../libs/dat.gui/dat.gui.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript">
+	var renderer,
+		scene,
+		camera,
+		pivotPoint,
+		control;
+
+	function init () {
+		scene = new THREE.Scene();
+
+		var apsect = window.innerWidth / window.innerHeight;
+
+		camera = new THREE.PerspectiveCamera(45, apsect, 0.1, 1000);
+
+		renderer = new THREE.WebGLRenderer();
+		renderer.setClearColor(0x000000, 1.0);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+		var sphere = new THREE.SphereGeometry(6.5, 20, 20);
+		var sphereMaterial = new THREE.MeshLambertMaterial({
+			color: 0x5555ff
+		});
+		var sphereMesh = new THREE.Mesh(sphere, sphereMaterial);
+		sphereMesh.receiveShadow = true;
+		sphereMesh.position.set(0, 1, 0);
+		scene.add(sphereMesh);
+
+		pivotPoint = new THREE.Object3D();
+		sphereMesh.add(pivotPoint);
+
+		var cubeGeomatry = new THREE.BoxGeometry(2, 4, 2);
+		var cubeMaterial = new THREE.MeshLambertMaterial();
+		cubeMaterial.color = new THREE.Color('red');
+		var cube = new THREE.Mesh(cubeGeomatry, cubeMaterial);
+		cube.name = "cube";
+		cube.position.set(14, 4, 6);
+		cube.castShadow = true;
+		pivotPoint.add(cube);
+
+		var light = new THREE.DirectionalLight();
+        light.position.set(20, 30, 20);
+        scene.add(light);
+
+        camera.position.x = 40;
+        camera.position.y = 30;
+        camera.position.z = 20;
+        camera.lookAt(scene.position);
+		
+		document.body.appendChild(renderer.domElement);
+
+		control = new function () {
+            this.rotationSpeedX = 0.001;
+            this.rotationSpeedY = 0.001;
+            this.rotationSpeedZ = 0.001;
+
+        };
+
+        addControls(control);
+        render();
+	}
+
+	function render(){
+		renderer.render(scene, camera);
+		pivotPoint.rotation.x += control.rotationSpeedX;
+		pivotPoint.rotation.y += control.rotationSpeedY;
+		pivotPoint.rotation.z += control.rotationSpeedZ;
+		
+		requestAnimationFrame(render);
+	}
+
+	function addControls(controlsObject) {
+		var gui = new dat.GUI();
+		gui.add(controlsObject, 'rotationSpeedX', -0.2, 0.2);
+		gui.add(controlsObject, 'rotationSpeedY', -0.2, 0.2);
+		gui.add(controlsObject, 'rotationSpeedZ', -0.2, 0.2);
+	}
+
+	window.onload = init;
+</script>
+
+</body>
+</html>

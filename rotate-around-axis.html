@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>skeleton</title>
+	<script type="text/javascript" src="../bower_components/three.js/three.js"></script>
+	<script type="text/javascript" src="../libs/dat.gui/dat.gui.js"></script>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+	</style>
+</head>
+<body>
+<script type="text/javascript">
+	var renderer,
+		scene,
+		camera,
+		control;
+
+	function init () {
+		scene = new THREE.Scene();
+
+		var apsect = window.innerWidth / window.innerHeight;
+
+		camera = new THREE.PerspectiveCamera(45, apsect, 0.1, 1000);
+
+		renderer = new THREE.WebGLRenderer();
+		renderer.setClearColor(0x000000, 1.0);
+		renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+		var cubeGeomatry = new THREE.BoxGeometry(6, 6, 6);
+		var cubeMaterial = new THREE.MeshLambertMaterial();
+		cubeMaterial.color = new THREE.Color('red');
+		var cube = new THREE.Mesh(cubeGeomatry, cubeMaterial);
+		cube.name = "cube";
+		scene.add(cube);
+
+		var light = new THREE.DirectionalLight();
+        light.position.set(20, 30, 20);
+        scene.add(light);
+
+        camera.position.x = 15;
+        camera.position.y = 16;
+        camera.position.z = 13;
+        camera.lookAt(scene.position);
+		
+		document.body.appendChild(renderer.domElement);
+
+		control = new function () {
+            this.rotationSpeedX = 0.001;
+            this.rotationSpeedY = 0.001;
+            this.rotationSpeedZ = 0.001;
+
+        };
+
+        addControls(control);
+        render();
+	}
+
+	function render(){
+		renderer.render(scene, camera);
+		var cube = scene.getObjectByName('cube');
+		cube.rotation.x += control.rotationSpeedX;
+		
+		cube.rotation.y += control.rotationSpeedY;
+		cube.rotation.z += control.rotationSpeedZ;
+		
+		requestAnimationFrame(render);
+	}
+
+	function addControls(controlsObject) {
+		var gui = new dat.GUI();
+		gui.add(controlsObject, 'rotationSpeedX', -0.2, 0.2);
+		gui.add(controlsObject, 'rotationSpeedY', -0.2, 0.2);
+		gui.add(controlsObject, 'rotationSpeedZ', -0.2, 0.2);
+	}
+
+	window.onload = init;
+</script>
+
+</body>
+</html>
